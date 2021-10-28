@@ -1,0 +1,586 @@
+---
+author: "Javier Martínez Santos"
+date: "02/07/2021"
+documentclass: book
+forprint: yes
+fontsize: 12pt
+geometry: margin = 2.7cm
+bibliography:
+- bib/library.bib
+- bib/paquetes.bib
+metodobib: yes
+biblio-style: plainnat
+link-citations: yes
+output:
+  word_document: default
+  pdf_document:
+    keep_tex: yes
+    number_sections: yes
+    citation_package: natbib
+editor_options:
+  chunk_output_type: inline
+---
+\renewcommand{\chaptername}{Capítulo}
+\setlength{\parindent}{1em}
+\renewcommand\tablename{Cuadro}
+\renewcommand\figurename{Figura}
+
+```{r include=FALSE}
+library(tidyverse)
+library(pxR)
+library(knitr)
+library(kableExtra)
+```
+
+# Historia del Mercado de Trabajo en España
+En este capítulo se hará un repaso a lo largo de la historia del mercado de trabajo en España desde el 2002 hasta el cuarto trimestre de 2020 por ser, el primer y ultimo año de los que se disponen datos homogeneizados de la Encuesta de Población activa (EPA) que realiza trimestralmente el Instituto Nacional de Estadística (INE).
+
+A continuación, se expondrán la evolución reciente de aquellas variables características del mercado de trabajo como son la actividad, la ocupación yel desempleo, siendo estas, un reflejo de lo que ocurre en dicho mercado mediante los distintos ciclos económicos a los que la economía española se ha enfrentado en las últimas dos décadas.
+
+Para ello, comenzaremos analizando la serie histórica de la población activa en España, la cual desagregaremos por grupos de edad, sexos y nivel de formación alcanzado, estando esta última disponible desde el primer trimestre de 2014.
+
+## Poblacion activa en España
+
+Según la encuesta de población activa (EPA), se considera como población activa todas aquellas personas de 16 o más años, que durante la semana de referencia, suministran mano de obra para la producción de bienes y servicios o están disponibles y en condiciones de incorporarse a dicha producción. Se subdividen en ocupados y parados. (EPA, 2005)
+
+En este apartado analizaremos la evolución de la población activa por rangos de edad, sexo y nivel educativo para conocer que ha ocurrido con este grupo poblacional en de los últimos 20 años.
+
+Partiremos nuestro estudio de dichas variables por trienios, comenzando por el 2004 por estar los datos homogeneizados por el INE a partir del año 2002, prosiguiendo así con 2007, 2010, 2013, 2016 y 2019, posteriormente seguiremos con el año 2020, como año en el que la pandemia de la Covid - 19 ha obligado a la economía española a establecer una serie de "bloqueos", afectando negativamente a la actividad económica española. 
+
+
+### Activos por grupos de edad y sexos 
+
+Dentro del colectivo de sujetos activos es posible calificar éste por grupos de edad y género. En este caso nos fijaremos como aspecto clave en la distinción entre mercado de trabajo de jóvenes y de adultos en términos laborales, es decir, dividir la población en dos grandes grupos de personas: por un lado está la población activa joven, es decir, aquellas personas que tienen entre 19  y 29 años de edad en la semana de referencia de la encuesta; y por otro aquellas personas mayores de 29 años hasta su jubilación. 
+
+Para así poder ver como ha sido la tendencia desagregada por grupos de edad a lo largo de los trienios a los que haremos referencia a lo largo del trabajo.
+
+Comenzando por los grupos de edad de los jóvenes, nos encontramos con una población activa de entre 16 y 19 años en 2002 de 496.8 mil personas, el cual se estancaría entre los años 2002 y 2005 para alcanzar su máximo en 2007 en 527.9 mil personas (Cuadro 1.1).
+
+Muchos de los jóvenes que pertenecían a esta cohorte de menos de 19 años, atraídos por el boom inmobiliario, con alta demanda de empleo de baja cualificación y salarios reales elevados, dejaron sus estudios reglados sin terminar para entrar en la población activa.
+
+Sin embargo una vez terminado el boom inmobiliario dicho grupo de edad de entre 20 y 25 años entró en una tendencia regresiva, los jóvenes vuelven o no salen tan temprano del sistema educativo. Por lo que, cada vez son menos tanto en valor absoluto como sobre el total de la población activa, llegando al año 2019 con 1255.4 mil personas en disposición de trabajar.
+
+Como se aprecia, la población activa menor de 25 años no ha parado de disminuir desde la gran crisis económica de finales de la primera década de nuestro siglo, aunque con una leve estabilización en los últimos años. Estos movimientos de población activa pueden darse por un problema demográfico, siendo cada vez menos el numero de personas comprendidas entre esas edades y por una transiciones entre situaciones de actividad e inactividad (Malo, 2014).
+
+En cuanto al grupo de edad de 25 a 29 años, este grupo se había mantenido constante desde el 2002 hasta el 2004, alcanzando su máximo en torno los 3.200 miles de personas, hasta que en en 2007 comienza su descenso de una manera imparable hasta llegar a ser en el 2019 a 2122.1 miles de personas de entre 25 y 29 años pertenecientes a la población activa, aproximadamente el 9 por 100 del total de los activos en dicho momento del tiempo (Cuadro 1.1). 
+
+El siguiente grupo de edad, comprendido entre los 30 y 39 años, es el grupo con mayor volumen de población activa entre 2002 y 2013, alcanzando en 2010 7179.1 miles de personas activas, es decir, el 30 por 100 de toda la población activa en ese momento del tiempo.
+
+A partir de alcanzar este 30 por 100, este grupo empieza a descender de una forma suave durante los años 2010 y 2013, año a partir del cual este descenso se acentúa perdiendo en 6 años mas de 1 millón de activos en este rango de edad, transitando del mencionado 30 por 100 de activos, a unicamente agrupar al 23 por 100 de activos en España entre 30 y 39 años. 
+
+```{r echo=FALSE, include=FALSE}
+#ACTIVOS EN VALOR ABSOLUTO POR GRUPOS DE EDAD 04-07-10-13-16-19 ----
+activos <- read.px("DATOS/INE:AIREF/Activos.px") %>% as.tibble()
+
+activos <- activos %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Sexo == "Ambos sexos", trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019" )) %>%
+  arrange(año) %>% 
+  pivot_wider(names_from = Edad, values_from = value)
+
+activos <- activos %>%
+  mutate("16 a 19 años" = apply(activos[ , 6], 1, sum),
+         "20 a 24 años" = apply(activos[ , 7], 1, sum),
+         "25 a 29 años" = apply(activos[ , 8], 1, sum),
+         "30 a 39 años" = apply(activos[ , 9:10], 1, sum),
+         "40 a 49 años" = apply(activos[ , 11:12], 1, sum),
+         "50 a 59 años" = apply(activos[ , 13:14], 1, sum),
+         "60 o mas" = apply(activos[ , 15:17], 1, sum)) %>% 
+  select(1:5,18:24)
+activos$Unidad <- NULL
+activos$Sexo <- NULL
+
+activos <- activos %>% pivot_longer(cols = 3:10, names_to = "edad", values_to = "value")
+activos <- activos %>% pivot_wider(names_from = año, values_from = value)
+activos$trimestre <- NULL
+activos <- activos%>% arrange(edad) %>% remove_rownames %>% column_to_rownames(var="edad")
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+activos %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Población activa por grupo de edad", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en miles de personas", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2.5cm") %>% column_spec(2:7, "1.5cm") %>% 
+  row_spec(7, hline_after = T)
+```
+
+Aún con la tasa de actividad de este decenio creciendo desde el año 2002 hasta el año 2015, donde se estabiliza para posteriormente decrecer (EPA, 2005), apreciamos que en el año 2013 ya había comenzado el descenso, tanto en valor absoluto como en porcentaje sobre la población activa, de este grupo de edad entre los 30 y los 39 años.
+
+Mientras que los grupos de jóvenes que hemos analizado, entre 16 y 29 años, compartían una misma tendencia con leves variaciones, experimentado un crecimiento de la población activa entre los periodos 2002 y 2008, a partir del cual comenzaron a descender de una manera diferenciada en intensidad entre los tres grupos, para posteriormente estabilizarse, incluso, con un leve crecimiento en el último trienio 2017-2019, en el grupo siguiente a los jóvenes (30-39) no hemos visto la segundo tramo de la tendencia, es decir, una vez comienza el descenso a partir de la crisis de 2008 y 2012, este grupo no experimenta, desde entonces, recuperación alguna de su población activa, disminuyendo cada vez mas a medida que trascurren los periodos.
+
+Continuando con los siguientes grupos de edad, nos encontramos con un ascenso constante de todos los grupos mayores de 40 años, con ciertas diferencias en cuanto a la intensidad de estas subidas y a la representación del grupo en cuestión sobre el total de la población activa.
+
+El grupo de edad comprendido entre los 40 y 49 años experimentó un aumento de aproximadamente 2 millones de personas desde el año 2004 hasta el año 2019, en el cual representaba el 29 por 100 de la población activa total, siendo el grupo de edad mas poblado desde el 2016 en adelante superando, desde entonces, al rango de edad comprendida entre los 30 y los 39 años.
+
+También se puede apreciar un aumento significativo de aquellas personas comprendidas entre los 50 y los 59 años de edad dentro de los sujetos activos, donde en el año2004 este grupo de actividad representaba el 15 por 100 de los activos totales, en tan solo 15 años han pasado a representar el 24 por 100 e todos los activos, un aumento de 9 puntos porcentuales entre las personas de entre 50 y 59 años.  
+
+Por último, dentro de la población activa nos encontramos con los mayores de 60 años hasta su jubilación, donde se puede ver la misma tendencia de los dos grupos anteriores. Al comienzo de nuestra muestra las personas que pertenecían a este grupo de población eran minoritarias, aproximadamente 800 mil personas eran activas con mas de 60 años, sin embargo, 15 años después han duplicado su numero e activos mayores e 60 años,superando el millón y medio y representando el 7 por 100 de la población activa española. 
+
+Este aumento de los activos a partir de una determinada edad con el paso de los años puede deberse a dos características importantes dentro de la sociedad: el envejecimiento de la población española y la paulatina incorporación de las mujeres al mercado de trabajo.
+
+La creciente incorporación de la mujer al mercado de trabajo y a la actividad, motivada posiblemente por el aumento de mujeres con estudios medios y superiores que se alejan de la vida domestica para desembarcar en el mercado laboral, además de que el aumento del desempleo que se vivió en esos años en los hogares españoles, donde eran los hombres eran los que trabajaban, ahora están desempleados provocando que las mujeres salgan de la inactividad en busca de un empleo para incrementar los ingresos del hogar ante la duración y la intensidad de la Gran Crisis Financiera.
+
+Tanto en el cuadro 1.2 como 1.3 podemos ver la evolución de la población activa y las tasas de actividad por género, respectivamente, desde el año 2004 hasta el ultimo trimestre de 2019. Apreciamos una clara convergencia de ambos indicadores para posteriormente estabilizarse a partir del año 2016.
+
+```{r echo=FALSE, include=FALSE}
+#ACTIVOS EN VALOR ABSOLUTO POR SEXO 04-07-10-13-16-19 ----
+activos.sex <- read.px("DATOS/INE:AIREF/Activos.px") %>% as.tibble()
+
+activos.sex <- activos.sex %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Edad == "Total", trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019" )) %>%
+  mutate(Sexo = case_when(Sexo == "Ambos sexos" ~ "Total",
+                          Sexo == "Hombres" ~ "Hombres",
+                          Sexo == "Mujeres" ~ "Mujeres")) %>% 
+  arrange(año) %>% 
+  pivot_wider(names_from = año, values_from = value) %>% 
+  arrange(Sexo)
+
+activos.sex$trimestre <- NULL
+activos.sex$Unidad <- NULL
+activos.sex$Edad <- NULL
+
+activos.sex <- activos.sex%>% remove_rownames %>% column_to_rownames(var="Sexo")
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+activos.sex %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Población activa por género", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en miles de personas", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2cm") %>% column_spec(2:7, "2cm") %>% 
+  row_spec(2, hline_after = T)
+```
+
+El primer dato a destacar en el cuadro 1.2 es la relación que había entre hombres y mujeres en cuanto a la participación de ambos en la población activa, el género femenino, aun siendo el genero que acumula a mas personas dentro de la sociedad española, si representación en la población activa es siempre menor que el genero masculino, sin embargo estas diferencias se han ido reduciendo en las ultimas dos décadas.
+
+En el año 2004 el genero femenino contaba con 8564.6 miles de mujeres dentro de los sujetos activos, lo que representaba el 41 por 100 de los activos totales de ese momento, con una diferencia de cerca de 4 millones de activos en relación al genero masculino en dicho año. (Cuadro 1.2)
+
+Posteriormente, a medida que iban pasando los sucesivos periodos estas diferencias entre géneros se han ido reduciendo por ambas direcciones. 
+
+Los hombres después del boom de la burbuja inmobiliaria, donde los puestos de construcción estaban ocupados generalmente en su mayoría por hombres se ven muy perjudicados, el desanimo por no encontrar un empleo y caer en el desempleo de larga duración ha provocado que parte de ellos salgan de la población activa para entrar en la inactividad, entre 2007 y 2013 se pierden 814 mil hombres dentro de la población activa, representando en 2019 el 53 por 100 de la misma.
+
+Por otro lado, las mujeres han estado convergiendo hacia los hombres, unicamente decreciendo en el periodo 2013-2016 para posteriormente alcanzar su máximos histórico en el año 2019 con casi 11 millones de mujeres como sujeto activos en España, representando el 47 por 100 de el total de la población activa, 6 puntos porcentuales mas que en el primer año de la serie.
+
+```{r echo=FALSE, include=FALSE}
+#ACTIVOS EN TASA POR SEXO 04-07-10-13-16-19 ----
+tasa.sex <- read.px("DATOS/INE:AIREF/tasa.actividad.px") %>% as.tibble()
+
+tasa.sex <- tasa.sex %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Edad == "Total", trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019")) %>%
+  mutate(Sexo = case_when(Sexo == "Ambos sexos" ~ "Total",
+                          Sexo == "Hombres" ~ "Hombres",
+                          Sexo == "Mujeres" ~ "Mujeres")) %>% 
+  arrange(año) %>% 
+  pivot_wider(names_from = año, values_from = value) %>% 
+  arrange(Sexo)
+
+tasa.sex$trimestre <- NULL
+tasa.sex$Edad <- NULL
+
+tasa.sex <- tasa.sex%>% remove_rownames %>% column_to_rownames(var="Sexo")
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+tasa.sex %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Tasa de actividad por género", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en porcentaje", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2cm") %>% column_spec(2:7, "2cm") %>% 
+  row_spec(2, hline_after = T)
+```
+
+En cuanto a lasas tasas de actividad de ambos sexos nos encontramos un comportamiento convergente entre ambos sexos, una reducción de la tasa de actividad de los hombres junto con un aumento de la tasa de actividad de las mujeres.
+
+Los hombres en los últimos periodos mantienen una tasa de actividad cercana al 64 por 100, es decir, que de cada 100 hombres en edad de trabajar, unicamente 64 están ocupados o en disposición de estarlo, esta relación ha ido disminuyendo desde el año 2007 donde apreciamos que esta tasa es del 69 por 100. (Cuadro 1.3)
+
+En cambio las mujeres tienen una tendencia creciente durante todo el periodo analizado, aumentando su tasa de actividad 7 puntos porcentuales desde 2004 hasta el 2019, aun por debajo de la tasa del 69 por 100 del hombres para el mismo periodo pero reduciendo esta brecha de género desde los 22 pp de brecha en 2004 a los 11 pp de diferencia en 2019.
+
+A continuación vamos a ver que ha ocurrido con las tasas de actividad por nivel educativo, desde el 2014 hasta el 2019, para poner en contexto un posible aumento de la actividad derivado del aumento de los niveles de formación alcanzados en España.
+\newpage
+
+## Poblacion ocupada en España
+
+Según la encuesta de población activa (EPA), se considera como ocupado todas aquellas personas de 16 o más años que durante la semana de referencia han estado trabajando durante al menos una hora a cambio de una retribución en dinero o especie o quienes teniendo trabajo han estado temporalmente ausentes del mismo por enfermedad, vacaciones, etcétera. (EPA, 2002)
+
+Los ocupados se subdividen en trabajadores por cuenta propia (empleadores, empresarios sin asalariados y trabajadores independientes) y asalariados (públicos o privados). Atendiendo a la duración de la jornada los ocupados se clasifican en ocupados a tiempo completo (con una jornada habitual semanal superior a 30 horas) y a tiempo parcial (con una jornada habitual semanal inferior a 35 horas). (EPA, 2005)
+
+Realizaremos el pertinente análisis de la evolución a través de los mismos periodos anuales que usamos en el apartado anterior sobre la evolución de la población activa.
+
+En este apartado observaremos la evolución de los ocupados en el mercado de trabajo español a través de una serie de variables como el grupo etario y el género para los datos sobre ocupación y posteriormente analizaremos el desarrollo de la tasa de temporalidad y la tasa de parcialidad sobre el total de los asalariados. 
+
+### Ocupados por grupo de edad y sexo
+
+En primer lugar, dentro de la población ocupada analizaremos la evolución reciente a través de los grupos de edad en los que se clasifican los distintos ocupados, así como posteriormente su género para ahondar mas en dicha evolución a lo largo de estas últimas dos décadas.
+
+Comenzando por el primer grupo etario, aquellos jóvenes entre 16 y 19 años, podemos apreciar un ascenso de ocupados en esta edad entre 2004 y 2007 hasta llegar a 363.8 mil personas ocupadas en el momento expansivo que había experimentado España en esos años, para posteriormente caer a niveles mínimos donde en 2013 había menos de 70 mil jóvenes trabajado la semana de referencia. (Cuadro 1.5)
+
+A partir del año 2013, una vez pasado el momento mas duro de la recesión, la cantidad de jóvenes entre 16 y 19 años ha vuelto a crecer paulatinamente hasta llegar al 2019 con 146.5 mil personas en este grupo de edad ocupados, siendo hasta un 50 por 100 inferior a los niveles de ocupación presentados antes de la crisis.
+
+A continuación, en cuanto al grupo de edad comprendido entre los 20 y los 24 año, apreciamos una tendencia creciente, de nuevo entre los años 2004 y 2007, alcanzando 1594.4 mil personas ocupadas, representando el 7 por 100 de la población ocupada en 2007, una vez comienza la recesión al año siguiente, este grupo de edad sufre una caída de la ocupación de 500 mil personas en los siguientes dos años y una perdida total durante la recesión de 914 mil ocupados pertenecientes al grupo de edad de entre 20 y 24 años, en otras palabras, en la crisis del 2008, este grupo perdió el 58 por 100 de sus ocupados en los años de recesión de la economía española. 
+
+Posteriormente, se produce una leve recuperación de los ocupados entre 20 y 24 años, llegando a 714 ocupados en 2007 y alcanzando un nuevo máximo en este periodo expansivo de 914 mil ocupados, aun muy por debajo del máximo alcanzando en el anterior ciclo expansivo de la economía de 1594.4 mil personas.
+
+En cuanto al último quinquenio de edad que hace referencia a la población joven, nos encontramos con el grupo de edad de entre 24 y 29 años. Este grupo comparte su tendencia con los dos anteriores, pero con el matiz de la intensidad en cuanto a la pérdida de ocupación provocada por la recesión y a su posterior estabilización.
+
+Este grupo en 2007 representaba el 14 por 100 de todos los ocupados totales en España, año a partir del cual comienza su descenso en número de ocupados motivado, de nuevo, por la crisis vivida durante esos años, donde disminuye hasta los 1612.5 mil personas en 2016, pasando a representar en ese periodo el 8.7 por 100 de los ocupados, la representación de este grupo dentro de la población ocupada habría disminuido un 36 por 100.
+
+A continuación, analizaremos la evolución de los decenios de edad de los grupos de personas consideradas adultas comenzando por aquellas comprendidas entre los 30 y los 39 años de edad, y acabaremos con el grupo de mayores de 60 años.
+
+Este grupo de edad, de entre 30 y 39 años, es el grupo con mas cantidad de ocupado entre los años 2004 y 2013, llegando a alcanzar el que 1 de cada 3 ocupados en el mercado laboral español pertenecieran a este grupo de edad en el 2007, año a partir el cual comenzó su descenso de ocupación, dicho descenso avanzo raudamente en los años de la recesión, perdiendo mas de un millón de ocupados entre 2007 y 2013.
+
+A parir del 2013, este grupo de edad continuó su tendencia descendente pero de una manera menos agresiva, hasta llegar al año 2019 con 4733.7 mil ocupados, lo que representa el 23 por 100 de los ocupados totales en ese periodo.
+
+```{r echo=FALSE, include=FALSE}
+#OCUPADOS EN VALOR ABSOLUTO POR GRUPOS DE EDAD 04-07-10-13-16-19 ----
+ocupados <- read.px("DATOS/INE:AIREF/ocupados.px") %>% as.tibble()
+
+ocupados <- ocupados %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Sexo == "Ambos sexos", trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019" )) %>%
+  arrange(año) %>% 
+  pivot_wider(names_from = Edad, values_from = value)
+
+ocupados <- ocupados %>%
+  mutate("16 a 19 años" = apply(ocupados[ , 6], 1, sum),
+         "20 a 24 años" = apply(ocupados[ , 7], 1, sum),
+         "25 a 29 años" = apply(ocupados[ , 8], 1, sum),
+         "30 a 39 años" = apply(ocupados[ , 9:10], 1, sum),
+         "40 a 49 años" = apply(ocupados[ , 11:12], 1, sum),
+         "50 a 59 años" = apply(ocupados[ , 13:14], 1, sum),
+         "60 o mas" = apply(ocupados[ , 15:17], 1, sum)) %>% 
+  select(1:5,18:24)
+ocupados$Unidad <- NULL
+ocupados$Sexo <- NULL
+
+ocupados <- ocupados %>% pivot_longer(cols = 3:10, names_to = "edad", values_to = "value")
+ocupados <- ocupados %>% pivot_wider(names_from = año, values_from = value)
+ocupados$trimestre <- NULL
+ocupados <- ocupados%>% arrange(edad) %>% remove_rownames %>% column_to_rownames(var="edad")
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+ocupados %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Población ocupada por grupo de edad", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en miles de personas", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2.3cm") %>% column_spec(2:7, "2cm") %>% 
+  row_spec(7, hline_after = T)
+```
+\newpage
+
+Continuando con los siguientes grupos de edad, nos encontramos con el grupo de edad de entre 40 y 49 años, el cual tiene una tendencia totalmente distinta a los cuatro grupos anteriores, este grupo sufre una ligera caída de la ocupación durante la recesión, muy por debajo de las caídas de los grupos de edad de los mas jóvenes e incluso inapreciable para la gravedad de la crisis entre el 2008 y el 2013.
+
+Comenzando con la evolución de este grupo a lo largo del periodo podemos apreciar que se ha convertido, desde el 2016 en el grupo de edad que acumula la mayor cantidad de población ocupada en él, representando en el último periodo el 30 por 100 de la población ocupada.
+
+Este aumento consistente en el tiempo, puede estar provocado, como ya mencionamos en el apartado de la de los activos, por el envejecimiento prolongado de la población española y/o por la posibilidad de que el mercado de trabajo español no recurra a los jóvenes en fases iniciales del ciclo expansivos, premiando la mayor experiencia laboral de la población adulta, dando como resultado que cada vez haya mas población en los últimos grupos de edad y con ellos mas cantidad de trabajadores en dichos grupos.
+
+En cuanto al grupo comprendido entre 50 y 59 años, se aprecia un crecimiento constante desde el 2004 hasta 2010, donde la recesión ralentiza la senda creciente de ocupados en este grupo, sin embargo,tras esa ralentización, dicho grupo sigue creciendo aproximadamente a 500 mil personas cada tres años, este crecimiento se debe, al aumento de nuevo de la ocupación una vez superada la crisis en España y, de nuevo, al envejecimiento de la población dispuesta a trabajar en el mercado de trabajo España.
+
+Este grupo a transitado durante estos últimos 15 años desde los 2864.4mil ocupados hasta los 4881.5 mil ocupados en 2019, representando un 24 por 100 de los ocupados totales, es decir, practicamente uno de cada cuatro ocupados en España tienen entre 50 y 59 años de edad, lo que puede provocado por que los demandantes de empleo aumenten la demanda de personas adultas con altas tasas de experiencia y profesionalidad, antes que de jóvenes sin estas cualidades. 
+
+Por último, el grupo de edad de mayores de 60 años, con una tendencia similar al grupo anterior, aunque con unos años de retraso en cuanto a la leve disminución de ocupados derivado de la recesión, contando en el 2004 con 754.7 mil ocupados mayores de 60 años en España, aumentando hasta 1445.7 mil ocupados en 2019, lo que es igual a que el 7 por 100 de los ocupados tienen mas de 60 años cuando en el 2004 estos, unicamente representaban el 4 por 100 del total.
+
+Con esta evolución por grupos de edad de los ocupados en el mercado de trabajo, se puede apreciar una hipótesis similar a la que ocurre  con la población activa, el envejecimiento de la población española esta provocando que los activos y los ocupados en los tramos altos de los grupos de edad, representen cada vez mas peso dentro del mercado laboral español.
+
+A continuación haremos un repaso por la evolución de los ocupados desagregados por géneros para ahondar mas profundamente en las disparidades que presenta el mercado de trabajo español en cuando a la brecha de género. 
+\newpage
+
+```{r echo=FALSE, include=FALSE}
+#OCUPADOS EN VALOR ABSOLUTO POR SEXO 04-07-10-13-16-19 ----
+ocupados.sex <- read.px("DATOS/INE:AIREF/ocupados.px") %>% as.tibble()
+
+ocupados.sex <- ocupados.sex %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Edad == "Total", trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019" )) %>%
+  mutate(Sexo = case_when(Sexo == "Ambos sexos" ~ "Total",
+                          Sexo == "Hombres" ~ "Hombres",
+                          Sexo == "Mujeres" ~ "Mujeres")) %>%
+  arrange(año) %>% 
+  pivot_wider(names_from = año, values_from = value) %>% 
+  arrange(Sexo)
+
+ocupados.sex$trimestre <- NULL
+ocupados.sex$Unidad <- NULL
+ocupados.sex$Edad <- NULL
+
+ocupados.sex <- ocupados.sex%>% remove_rownames %>% column_to_rownames(var="Sexo")
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+ocupados.sex %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Población ocupada por género", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en miles de personas", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2cm") %>% column_spec(2:7, "2cm") %>% 
+  row_spec(2, hline_after = T)
+```
+
+Como se puede apreciar, en el año 2004 11155.1 mil ocupados pertenecían al género masculino (Cuadro 1.5), volumen que seguiría aumentando a medida que avanzaba el ciclo expansivo entre 2002 y 2008, motivado en gran parte por el aumento desproporcionado del sector de la construcción, sector predominantemente masculino.
+
+Posteriormente en el periodo 2007 se alcanzó al máximo nivel de ocupados en España, acumulando un total de 20.717 millones de personas ocupadas, donde los hombres representaban el 58 por 100 de los ocupados totales, dicha brecha se habría reducido 2 décimas desde el 2004.
+
+Una vez iniciada la recesión, donde un sector entero, como el de la construcción se habia desmoronado, como hemos mencionado antes, un sector muy masculino, el numero de hombres ocupados entre 2007 no dejó de caer hasta el año 2013, donde se aprecia el mínimo de hombres ocupados con un total de 9306.8 mil personas, que pasó a representar el 54 por 100 de los ocupados totales, 6 décimas menos que a comienzos del 2004.
+
+Sin embargo, aunque el género femenino también tiene un descenso de sus ocupados durante la recesión, es mucho menos intenso que el de los hombres, posiblemente provocado, por su baja participación en el sector de la construcción. 
+
+El género femenino desde el 2004, con la interrupción de la recesión, h estado alcanzando nuevos máximos a medida que avanzaban los periodos. en el año 2016 ya contaba con 8.4 millones de ocupadas, representando el 45 por 100 de los ocupados totales, cuando hacía 12 años presentaba unicamente el 39 por 100 de los ocupados. 
+
+Actualmente, la brecha de género en cuando a número de ocupados y ocupadas se ha reducido notablemente desde el 2004 pasando de que las mujeres representen, como hemos mencionado antes, el 39 por 100 de los ocupados a que en 2019 cuenten con el 46 por 100 del volumen total de ocupados, todavía hay cierta brecha en cuanto a ocupación, aunque se esta reduciendo paulatinamente en el ultimo ciclo expansivo de la economía española  2013-2019. 
+
+A continuación, analizaremos la evolución de la tasa e temporalidad total del mercado de trabajo en España y desagregaremos posteriormente por sexos para observar que ocurre con la brecha de género en cuanto a la temporalidad.
+
+### Tasa de temporalidad de los asalariados
+
+En este apartado hablaremos sobre la evolución de las tasas de temporalidad que han estado muy seguidas de cerca desde hace varias décadas por sus elevados resultados para todo el conjunto de la población asalariada en España, sobre todo perjudicando en mayor medida a los jóvenes y a las mujeres. En este caso nos centraremos en la temporalidad total de la economía y en la brecha de género de la misma.
+
+La tasa de temporalidad es el cociente entre el número de asalariados con contrato temporal y el número total de asalariados. (EPA, 2005)
+
+En base a esa definición, podemos apreciar las altas tasas de temporalidad que sufre el mercado de trabajo en España desde el año 2004, aunque antes de este periodo también presentaba tasas de temporalidad similares, en donde 1 de cada 3 asalariados trabajaban a través de un contrato de carácter temporal, es decir, con fecha de finalización y con una indemnización por despido de menor cuantía que los asalariados con un contrato de carácter indefinido.
+
+En el primer periodo del cuadro 1.6 apreciamos que la tasa de temporalidad total de los asalariados es del 32.95 por 100, siendo esta 4 puntos porcentuales superior en mujeres que en hombres, lo que provoca que, en cuanto a temporalidad, las mujeres sufren mayor precariedad laboral en ese aspecto. 
+
+El año anterior a la crisis que comenzará en el 2008 encontramos tasas de temporalidad similares para el conjunto de los asalariados con un 30.82 por 100, sin embargo la brecha entre ambos géneros se reduce 1 punto porcentual, siendo todavía mayor en el caso de las mujeres.
+
+```{r echo=FALSE, include=FALSE}
+#OCUPADOS: CALCULO DE TASA DE TEMPORALIDAD POR SEXO 04-07-10-13-16-19 ----
+temp <- read.px("DATOS/INE:AIREF/tipo contrato y jornada.px") %>% as.tibble()
+
+temp <- temp %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Tipo.de.jornada == "Total", trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019"), 
+         Tipo.de.contrato.o.relación.laboral %in% c("Total asalariados", "Asalariados con contrato temporal")) %>%
+  mutate(Sexo = case_when(Sexo == "Ambos sexos" ~ "Total",
+                          Sexo == "Hombres" ~ "Hombres",
+                          Sexo == "Mujeres" ~ "Mujeres")) %>% 
+  arrange(año)
+
+temp$trimestre <- NULL
+temp$Tipo.de.jornada <- NULL
+
+temp <- temp %>% pivot_wider(names_from = Tipo.de.contrato.o.relación.laboral, values_from = value)
+
+temp <- temp %>% 
+  mutate(tasa.temporalidad = round((temp$`Asalariados con contrato temporal`/`Total asalariados`)*100, 2)) %>% 
+  pivot_longer(cols = 3:5, names_to = "tipo.contrato", values_to = "value")
+
+temp <- temp %>% pivot_wider(names_from = año, values_from = value) 
+temp <- temp %>% filter(tipo.contrato == "tasa.temporalidad") %>% arrange(Sexo) %>% remove_rownames %>% column_to_rownames(var="Sexo")
+temp$tipo.contrato <- NULL
+
+
+
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+temp %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Tasa de temporalidad por género", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en porcentaje", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2cm") %>% column_spec(2:7, "2cm") %>% 
+  row_spec(2, hline_after = T)
+```
+
+Con el comienzo de la recesión entre 2008 y 2013 la  tasa de temporalidad disminuye considerablemente, cayendo hasta 10 puntos porcentuales desde el año 2004 hasta el año 2013. La tasa e temporalidad cae en 2013 hasta el 23.66 por 100 de los asalariados, reduciéndose a su vez la brecha entre trabajadores masculinos y femeninos al 1.5 por 100.
+
+Esta disminución de la temporalidad, al principio puede ser poco intuitiva, sin embargo, cuando comienza la crisis del 2008 los primeros trabajadores en perder su empleos, provocado por el hundimiento de sector de la construcción son todos aquellos obreros y trabajadores de baja cualificación que se les contrataba bajo con una relación laboral de carácter temporal, con unos bajos costes de mantenimiento y despidos. 
+
+Además, la regulación laboral española en esos años contaba con costosas indemnizaciones por despido para los asalariados indefinidos, lo que provocaba que muchas empresas no pudieran despedirlos para realizar un ajuste de plantilla debido a que el coste de despido era mas alto que mantener los costes del salario de dicho empleado, lo que se conoce como la dualidad del mercado de trabajo, donde los trabajadores temporales con altas tasas de temporalidad viven bajo unas condiciones laborales mas precarias que los indefinidos. 
+
+Una vez recuperada la senda de crecimiento el último trimestre de 2013, comenzó un nuevo ascenso de la temporalidad en España para ambos sexos, sobre todo para los trabajadores jóvenes que se incorporaban por primera vez al mercado de trabajo. En 2016 la tasa de temporalidad total era del 26 por 100 de los asalariado, sin practicamente diferencias entre ambos géneros.
+
+A medida que la economía española continuaba creciendo a ritmos constantes, junto con la creación de empleo posterior a la crisis y un descenso del desempleo la tasa de temporalidad del mercado de trabajo continuó aumentando, sin embargo a día de hoy todavía no ha llegado ni a los niveles pre crisis ni a los valores medios de temporalidad históricos de la economía española.
+
+### Tasa de parcialidad de los asalariados
+
+A continuación haremos un repaso por las tasas de parcialidad de las últimas dos décadas en el mercado de trabajo, a su vez en este apartado volveremos a desagregar por género esta tasa para ver el impacto que pueden tener los contratos a tiempo parcial en la sociedad española. 
+
+La tasa de parcialidad es el cociente entre el número de ocupados a tiempo parcial y el número total de ocupados.(EPA, 2005).
+
+Según la definición mencionada anteriormente, en relación al género masculino, podemos observar las bajas tasas de contratos a tiempo parciales de este grupo, en el año 2004 los contratos a tiempo parcial de los hombres solamente representaban el 2.94 por 100 de todos los trabajadores asalariados. 
+
+A partir del comienzo de la crisis los contratos parciales en hombres aumentan del 3.9 por 100 en 2007 hasta el 7.9 por en 2013 al final de la gran recesión. Año a partir del cual se estabiliza la tasa de parcialidad en los hombres en torno al 7.5 por 100 del total de los contratos asalariados masculinos. 
+
+Estas bajas tasas de parcialidad en los hombres posiblemente sean involuntarias, debiéndose a no encontrar un empleo asalariado a tiempo completo, esta involuntariedad aumentaría durante los años de la crisis para volver a descender en los periodos de crecimiento económico. 
+
+En cuanto al género femenino las tasas de parcialidad son muy elevadas en relación a los hombres, en el 2004 contaban con una tasa de parcialidad del 17 por 100 de las asalariadas totales mientras que tres años mas tarde, en 2007, en lo alto del crecimiento económico ya tenían una tasa de parcialidad del 27 por 100, mas de una de cada cuatro mujeres trabajan menos de 8 horas al día.
+
+Una vez comienza la recesión, esta practicamente no afecta de forma acentuada la parcialidad delas mujeres, creciendo dicha tasa hasta el 25 por 100 en 2013, año a partir del cual comienza a disminuir de nuevo.
+
+Lo mas probable es que estas altas tasas de parcialidad de las mujeres estén determinadas por como distribuyen el tiempo las mujeres, prefiriendo tener mas tiempo de cuidados domésticos, tanto para cuidar familiares, como para cuidar a los hijos, como para simplemente dedicarse mas horas a las labores del hogar que al mercado remunerado.
+
+Estas diferencias de género pueden estar debidas a las preferencias de los hogares provocadas por la visión tradicional de la familia donde es la madre la persona que se ocupa de las tareas del hogar mientras que el hombre trabaja en el mercado remunerado.
+
+```{r echo=FALSE, include=FALSE}
+#OCUPADOS: CALCULO DE TASA DE PARCALIDAD POR SEXO 04-07-10-13-16-19 ----
+parc <- read.px("DATOS/INE:AIREF/tipo contrato y jornada.px") %>% as.tibble()
+
+parc <- parc %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(Tipo.de.jornada %in% c("Jornada a tiempo parcial", "Total"), trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019"), 
+         Tipo.de.contrato.o.relación.laboral == "Total") %>%
+  mutate(Sexo = case_when(Sexo == "Ambos sexos" ~ "Total",
+                          Sexo == "Hombres" ~ "Hombres",
+                          Sexo == "Mujeres" ~ "Mujeres")) %>% 
+  arrange(año)
+parc$trimestre <- NULL
+parc$Tipo.de.contrato.o.relación.laboral <- NULL
+
+parc <- parc %>% pivot_wider(names_from = Tipo.de.jornada, values_from = value)
+
+parc <- parc %>% 
+  mutate(tasa.parcialidad = round((parc$`Jornada a tiempo parcial`/Total)*100, 2)) %>% 
+  pivot_longer(cols = 3:5, names_to = "tipo.jornada", values_to = "value")
+
+parc <- parc %>% pivot_wider(names_from = año, values_from = value) 
+parc <- parc %>% filter(tipo.jornada == "tasa.parcialidad") %>% arrange(Sexo) %>% remove_rownames %>% column_to_rownames(var="Sexo")
+parc$tipo.jornada <- NULL
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+parc %>%
+  kable(booktabs = TRUE,format = "latex",
+        caption = "Tasa de parcialidad por género", align = "c") %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = FALSE) %>% 
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en porcentaje", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>% 
+  column_spec(1, "2cm") %>% column_spec(2:7, "2cm") %>% 
+  row_spec(2, hline_after = T)
+```
+
+En el apartado siguiente hablaremos sobre la evolución del desempleo en España desgregando por géneros y por grupos de edad para obserrvar las distintas diferencias entre grupos homogéneos.
+
+\newpage
+## Población desempleada en España
+Según la encuesta de población activa (EPA), se considera como parado las personas de 16 o más años que durante la semana de referencia han estado sin trabajo, disponibles para trabajar y buscando activamente empleo. Se considera que una persona busca empleo de forma activa si:
+
+Ha estado en contacto con una oficina pública de empleo con el fin de encontrar trabajo.
+
+Ha estado en contacto con una oficina privada (oficina de empleo temporal, empresa especializada en contratación, etc.) con el fin de encontrar trabajo.
+
+Ha enviado una candidatura directamente a los empleadores.
+
+Ha indagado a través de relaciones personales, por mediación de sindicatos, etc.
+
+Se ha anunciado o ha respondido a anuncios de periódicos.
+
+Ha estudiado ofertas de empleo.
+
+Ha participado en una prueba, concurso o entrevista, en el marco de un procedimiento de contratación.
+
+Ha estado buscando terrenos o locales.
+
+Ha realizado gestiones para obtener permisos, licencias o recursos financieros.
+
+También se consideran parados a las personas que ya han encontrado un trabajo y están a la espera de incorporarse a él, siempre que verifiquen las dos primeras condiciones.
+
+Realizaremos el pertinente análisis de la evolución a través de los mismos periodos anuales que usamos en el apartado anterior sobre la evolución de la población activa. (EPA, 2005)
+
+
+
+### Tasa de desempleo por grupos de edad y sexo
+
+En este apartado observaremos la evolución del desempleo en el mercado de trabajo español a través de una serie de variables como el grupo etario y el género para los datos sobre desempleo.
+
+Dentro del colectivo de sujetos desempleados es posible calificar éste por grupos de edad y género. En este caso nos fijaremos como aspecto clave en la distinción entre mercado de trabajo de jóvenes y de adultos en términos laborales, es decir, dividiremos la población en dos grandes grupos de personas: por un lado está la población desempleada joven, es decir, aquellas personas que tienen entre 19  y 29 años de edad en la semana de referencia de la encuesta; y por otro aquellas personas mayores de 29 años hasta su jubilación. 
+
+Para así poder ver como ha sido la tendencia desagregada por grupos de edad a lo largo de los trienios a los que hemos hecho referencia a lo largo del trabajo.
+
+Comenzaremos por la evolución de la tasa de paro para ambos sexos de la economía española desagregada por los grupos etarios en los que hemos dividido a la población anteriormente. Aquí apreciamos una clara diferencia entre las tasas de desempleo para los menores de 29 años y las tasas para los mayores de 29 años, que se repetirán en ambos géneros por separado. (Cuadro 1.8)
+
+En el año 2004, la tasa de paro de aquellas personas, que están disponible para trabajar, que tienen entre 16 y 19 años estaba en 29.04 por 100, aun con la economía creciendo en 007 este grupo de edad en este ultimo año pre crisis ya acumulaba el 31.08 por 100 de tasa de paro, practicamente uno de cada tres jóvenes entre 16 y 19 estaban desempleados.
+
+```{r echo=FALSE, include=FALSE}
+#TASA DESEMPLEO POR GRUPOS DE EDAD ----
+tasa.paro <- read.px("DATOS/INE:AIREF/Tasa de paro.px") %>% as.tibble()
+tasa.paro <- tasa.paro %>% separate(Periodo, into = c("año", "trimestre"), sep = 4) %>% 
+  filter(trimestre == "T4", año %in% c("2004","2007", "2010", "2013", "2016", "2019" )) %>% 
+  arrange(año)
+
+tasa.paro <- tasa.paro %>% pivot_wider(names_from = Edad, values_from = value)
+tasa.paro <- tasa.paro %>%
+  mutate("16 a 19 años" = round(apply(tasa.paro[ , 5], 1, mean),2),
+         "20 a 24 años" = round(apply(tasa.paro[ , 6], 1, mean),2),
+         "25 a 29 años" = round(apply(tasa.paro[ , 7], 1, mean),2),
+         "30 a 39 años" = round(apply(tasa.paro[ , 8:9], 1, mean),2),
+         "40 a 49 años" = round(apply(tasa.paro[ , 10:11], 1, mean),2),
+         "50 a 59 años" = round(apply(tasa.paro[ , 12:13], 1, mean),2),
+         "60 o mas" = round(apply(tasa.paro[ , 14:15], 1, mean),2)) %>% 
+  select(1:4,17:23) %>% 
+  pivot_longer(cols = 4:11, names_to = "Edad por Sexo", values_to = "value")
+tasa.paro <- tasa.paro %>% pivot_wider(names_from = año, values_from = value)
+tasa.paro$trimestre <- NULL
+tasa.paro <- tasa.paro %>% arrange(`Edad por Sexo`)
+tasa.paro <- tasa.paro %>% arrange(Sexo)
+
+```
+```{r echo=FALSE, results='hold'}
+#CREAMOS LA TABLA CON EL PAQUETE KNITRY LA EDITAMOS CON KABLEEXTRA ----
+kable(tasa.paro[1:24, 2:8], booktabs = TRUE, format = "latex", 
+        caption = "Tasa de paro por grupo de edad y género", align = "l",
+      col.names = c("", "2004", "2007", "2010", "2013", "2016", "2019")) %>%
+  kable_styling(latex_options = c("striped", "condensed","hold_position"),
+                position = "center",full_width = F) %>%
+  pack_rows("Ambos sexos", 1, 8) %>%
+  pack_rows("Hombres", 9, 16) %>%
+  pack_rows("Mujeres", 17, 24) %>%
+  footnote(general = "Encuesta de Población Activa (EPA)", general_title = "Source:",
+           number = c("Cifras en porcentaje", "Los datos hacen referencia al T4 de cada año"),
+           footnote_as_chunk = T) %>%
+  column_spec(1, "3.2cm") %>% column_spec(2:8, "1.7cm") %>% 
+  row_spec(7, hline_after = T) %>%
+  row_spec(8, hline_after = T) %>% 
+  row_spec(15, hline_after = T) %>%
+  row_spec(16, hline_after = T) %>% 
+  row_spec(23, hline_after = T)
+
+```
+
+Con el comienzo de la recesión, a partir de 2008, estas tasas de multiplicaron por dos desde el 2007 al 2010, alcanzando en el 2010 un 63.67 por 100 de tasa de paro y un 75 por 100 en 2013, el último periodo recesivo.
+
+Posteriormente, los grupos de edad entre 20 y 24 y 25 y 29 años, presentan una tendencia de crecimiento muy similar a través de los distintos periodos estudiados, sin embargo, el grupo mas joven de ambos sigue estando mas castigado que el grupo de 25 a 29 años, el merado de trabajo español sigue premiando la experiencia y la edad de la persona en gran medida. 
+
+Sin embargo, ambas tasas de paro de estos grupos todavía no han vuelto a niveles anteriores a la crisis más de 6 años después, manteniendo por encima en 2019 8 puntos porcentuales para el grupo de entre 20 y 24 años y 7.5 puntos porcentuales para el grupo de entre 25 y 29, acumulando tasas de desempleo del 27.7 por 100 y 19.03 por 100 respectivamente.
+
+En cuanto a los grupos de edad mayores de 29 años las tasas de desempleo son mucho menores que para los grupos jóvenes, y disminuyen a medida que avanzamos de grupo hacía arriba. La media de los cuatro grupos siguientes para el conjunto de los sexos en el año 2004 es de un 7.35 por 100, disminuye un punto hasta el periodo que precede al inicio de la crisis para posteriormente elevarse, en el año 2010, hasta 14.64 por 100, es decir, duplicando en tres años la tasa de paro de los mayores de 29 años en España.
+
+Esta tasa media alcanzó el 20.5 por 100 en el año 2013, a partir del cual, a través de la recuperación económica y retomando el crecimiento volvió a disminuir, en torno a 8 puntos porcentuales en tres años, aunque en el 2019 todavía esta 5 puntos por encima de su valor en el 2007.
+
+A continuación, haremos la comparativa de ambos géneros, aunque por grupos de edad presentan un comportamiento casi idéntico, las tasas de desempleo son diferentes entre si.
+
+Como se puede apreciar las tasas de desempleo de los hombres son menores que las de las mujeres en todos los grupos de edad y durante todo el periodo de la muestra. 
+
+En los años de la expansión inmobiliaria, sector el cual estaba dominado por el género masculino, las tasas de paro se separaban 7 puntos porcentuales en 2004 y 4 puntos en 2010, ambas a favor de los hombres, en cambio durante esos años la tasa de paro de las mujeres pasó del 14.3 por 100 hasta el 10.8 por 100, mientras que la de los hombres solo disminuyó un punto porcentual en 3 años.
+
+Una vez da comienzo la crisis en el 2008, las diferencias entre los géneros disminuyen a menos de 1 punto porcentual entre ambos, sin embargo, esta reducción de las diferencias se produce también a costas de un aumento del desempleo nunca visto en la historia de España, alcanzando en el peor momento de la crisis, en 2013, el 25.7 por 100 de paro. Una de cada cuatro personas que querían trabajar no podían hacerlo, siendo mínimas las diferencias entre géneros. 
+
+Una vez terminada la crisis, la tasa de desempleo volvió a disminuir, aunque disminuyó con mas rapidez entre los hombres que entre las mujeres, en 2016 la tasa de desempleo de los hombres era de un 17.22 por 100 mientras que la de las mujeres seguía por encima del 20 por 100.
+
+Por último, en el momento que la economía española recuperó la senda del crecimiento y junto con ella la creación de empleo, reduciendo la tasa de desempleo 10 puntos desde el punto mas elevado de la crisis, las diferencias entre ambos géneros y entre los grupos de edad volvieron a salir a la luz. España en el ultimo año tiene una tasa de paro media del 13.78 por 100, sin embargo en el género femenino menores de 25 años podemos apreciar tasas de paro del 30 por 100.
+
+
+
+
+
+
